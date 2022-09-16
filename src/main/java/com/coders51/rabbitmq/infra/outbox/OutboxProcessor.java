@@ -1,9 +1,8 @@
 package com.coders51.rabbitmq.infra.outbox;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,9 +27,8 @@ public class OutboxProcessor {
             " limit 1 " +
             " for update skip locked ";
         Outbox outbox = jdbcTemplate.queryForObject(sql, new OutboxMapper());
-        rabbitTemplate.convertAndSend("service1", "ciao", "Hello from RabbitMQ!");
-
-        jdbcTemplate.update("update outbox set published = true where id = '" + outbox.getId() + "'");
+        CorrelationData correlationData = new CorrelationData(outbox.getId().toString());
+        rabbitTemplate.convertAndSend("service1", "ciao", "Hello from RabbitMQ!", correlationData);
     }
 
 }

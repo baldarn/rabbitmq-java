@@ -11,8 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Outbox {
     
-    private Long id;
+    private String id;
     private String msg;
+    private boolean published;
     private Date createdAt;
 
 }

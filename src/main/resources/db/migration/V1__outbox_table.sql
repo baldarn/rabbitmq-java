@@ -1,0 +1,5 @@
+CREATE TABLE outbox (
+    id INT NOT NULL PRIMARY KEY,
+    msg VARCHAR NOT NULL,
+    created_at TIMESTAMP NOT NULL
+);

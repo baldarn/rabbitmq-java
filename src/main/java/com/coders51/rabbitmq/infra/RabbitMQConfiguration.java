@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Scope;
 import com.coders51.rabbitmq.consumer.Receiver;
 
 @Configuration
-public class RabbitMQConfig {
+public class RabbitMQConfiguration {
    
     @Value("${spring.rabbitmq.host}")
     private String host;
@@ -81,10 +81,9 @@ public class RabbitMQConfig {
     @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
     public RabbitTemplate rabbitTemplate() {
         RabbitTemplate template = new RabbitTemplate(connectionFactory());
-        template.setMandatory(mandatory);// Turn on message return mode
-        // Pass in two callback interface instances of different confirmation modes
+        template.setMandatory(mandatory);
         template.setConfirmCallback(rabbitMQPublishConfirm);
-        // template.setReturnCallback(new RabbitMQPublishConfirm());
+        template.setReturnsCallback(rabbitMQPublishConfirm);
         return template;
     }
 

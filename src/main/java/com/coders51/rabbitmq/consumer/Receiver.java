@@ -1,4 +1,4 @@
-package com.coders51.rabbitmq;
+package com.coders51.rabbitmq.consumer;
 
 import java.util.concurrent.CountDownLatch;
 import org.springframework.stereotype.Component;

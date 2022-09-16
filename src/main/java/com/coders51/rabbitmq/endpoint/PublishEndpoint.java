@@ -1,4 +1,4 @@
-package com.coders51.rabbitmq;
+package com.coders51.rabbitmq.endpoint;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.coders51.rabbitmq.infra.outbox.OutboxProcessor;
 
 @RestController
 public class PublishEndpoint {

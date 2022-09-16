@@ -1,4 +1,4 @@
-package com.coders51.rabbitmq;
+package com.coders51.rabbitmq.infra.outbox;
 
 import java.sql.SQLException;
 import java.util.List;

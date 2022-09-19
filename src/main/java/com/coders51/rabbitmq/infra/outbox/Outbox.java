@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 public class Outbox {
     
     private String id;
+    private String routingKey;
+    private String type;
     private String msg;
-    private boolean published;
-    private Date createdAt;
 
 }

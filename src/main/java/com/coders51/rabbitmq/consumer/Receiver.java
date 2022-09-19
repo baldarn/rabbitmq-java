@@ -1,20 +1,22 @@
 package com.coders51.rabbitmq.consumer;
 
-import java.util.concurrent.CountDownLatch;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Receiver {
+    
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
-    private CountDownLatch latch = new CountDownLatch(1);
-
-    public void receiveMessage(Object message) {
-        System.out.println("Received <" + message + ">");
-        latch.countDown();
+    @RabbitListener(queues = "${spring.service-name}")
+    public void listen(Message message) {
+        System.out.println("");
+        // System.out.println("Message read: " + message.getFoo());
     }
 
-    public CountDownLatch getLatch() {
-        return latch;
-    }
 
 }

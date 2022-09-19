@@ -1,15 +1,21 @@
 package com.coders51.rabbitmq.infra;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory.ConfirmType;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.RabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -18,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 import com.coders51.rabbitmq.consumer.Receiver;
+
 
 @Configuration
 public class RabbitMQConfiguration {
@@ -34,11 +41,11 @@ public class RabbitMQConfiguration {
     @Value("${spring.rabbitmq.password}")
     private String password;
 
-    @Value("${spring.rabbitmq.publisher-confirms}")
-    private boolean publisherConfirm;
-
     @Value("${spring.rabbitmq.virtual-host}")
     private String virtualHost;
+    
+    @Value("${spring.rabbitmq.publisher-confirms}")
+    private boolean publisherConfirm;
 
     @Value("${spring.rabbitmq.template.mandatory}")
     private boolean mandatory;
@@ -50,11 +57,16 @@ public class RabbitMQConfiguration {
     private String serviceName;
 
     @Autowired
-    RabbitMQPublishConfirm rabbitMQPublishConfirm;
+    RabbitMQConfirmCallback rabbitMQPublishConfirm;
+
+    @Autowired
+    RabbitMQReturnsCallback rabbitMQReturnsCallback;
 
     @Bean
     Queue queue() {
-        return new Queue(serviceName, true);
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-queue-type", "quorum");
+        return new Queue(serviceName, true, false, false, args);
     }
 
     @Bean
@@ -74,6 +86,7 @@ public class RabbitMQConfiguration {
         connectionFactory.setPassword(password);
         connectionFactory.setVirtualHost(virtualHost);
         connectionFactory.setPublisherConfirmType(ConfirmType.CORRELATED);
+        
         return connectionFactory;
     }
 
@@ -82,25 +95,24 @@ public class RabbitMQConfiguration {
     public RabbitTemplate rabbitTemplate() {
         RabbitTemplate template = new RabbitTemplate(connectionFactory());
         template.setMandatory(mandatory);
+        template.setMessageConverter(producerJackson2MessageConverter());
         template.setConfirmCallback(rabbitMQPublishConfirm);
-        template.setReturnsCallback(rabbitMQPublishConfirm);
+        template.setReturnsCallback(rabbitMQReturnsCallback);
         return template;
     }
 
     @Bean
-    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
-            MessageListenerAdapter listenerAdapter) {
-        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-        container.setConnectionFactory(connectionFactory);
-        container.setQueueNames(serviceName);
-        container.setMessageListener(listenerAdapter);
-        container.setPrefetchCount(prefetchCount);
-        return container;
+    public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(
+            ConnectionFactory rabbitConnectionFactory) {
+        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+        factory.setConnectionFactory(rabbitConnectionFactory);
+        factory.setPrefetchCount(prefetchCount);
+        return factory;
     }
-
+    
     @Bean
-    MessageListenerAdapter listenerAdapter(Receiver receiver) {
-        return new MessageListenerAdapter(receiver, "receiveMessage");
+    public Jackson2JsonMessageConverter producerJackson2MessageConverter() {
+        return new Jackson2JsonMessageConverter();
     }
 
 }

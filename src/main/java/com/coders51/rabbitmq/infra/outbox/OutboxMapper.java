@@ -11,6 +11,7 @@ public class OutboxMapper implements RowMapper<Outbox> {
         Outbox outbox = new Outbox();
 
         outbox.setId(rs.getString("ID"));
+        outbox.setType(rs.getString("TYPE"));
         outbox.setMsg(rs.getString("MSG"));
 
         return outbox;

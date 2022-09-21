@@ -18,6 +18,10 @@ services:
       - 15692:15692
       - 15672:15672
       - 5672:5672
+    volumes:
+      - type: bind
+        source: ./enabled_plugins
+        target: /etc/rabbitmq/enabled_plugins
     environment:
       RABBITMQ_DEFAULT_USER: rabbit
       RABBITMQ_DEFAULT_PASS: rabbit

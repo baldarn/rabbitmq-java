@@ -14,8 +14,7 @@ public class Receiver {
 
     @RabbitListener(queues = "${spring.service-name}")
     public void listen(Message message) {
-        System.out.println("");
-        // System.out.println("Message read: " + message.getFoo());
+        System.out.println("Message read: " + message.toString());
     }
 
 

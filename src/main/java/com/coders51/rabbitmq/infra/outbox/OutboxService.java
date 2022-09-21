@@ -15,7 +15,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.coders51.rabbitmq.dto.Foo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,8 +42,6 @@ public class OutboxService {
                 msg.getClass().getName(),
                 jsonMsg,
                 new Date());
-
-        // this.process();
     }
 
     @Transactional
@@ -72,7 +69,6 @@ public class OutboxService {
             }, correlationData);
 
             waitConfirmation(correlationData.getId());
-
             jdbcTemplate.update("update outbox set published = true where id = '" + correlationData.getId() + "'");
         } catch (EmptyResultDataAccessException e) {
             // niente da fare
@@ -90,6 +86,8 @@ public class OutboxService {
             confirmed = jdbcTemplate.queryForObject("select confirmed from outbox where id = '" + outboxId + "'",
                     Boolean.class);
         } while ((confirmed == null || !confirmed) && System.currentTimeMillis() < end);
+        if (!confirmed)
+            throw new Error("Message not confirmed");
     }
 
 }

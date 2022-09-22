@@ -1,11 +1,7 @@
 package com.coders51.rabbitmq.infra;
 
-import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.rabbitmq.client.Return;
 
 import lombok.extern.java.Log;
 

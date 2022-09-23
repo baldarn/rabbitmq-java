@@ -45,7 +45,7 @@ public class OutboxService {
     }
 
     @Transactional
-    @Scheduled(cron = "0/5 * * * * ?")
+    @Scheduled(cron = "0/1 * * * * ?")
     public void process() throws SQLException, JsonMappingException, JsonProcessingException, ClassNotFoundException {
         Outbox outbox;
         try {

@@ -37,7 +37,7 @@ public class PraticaRepository implements IPraticaRepository {
                     "SELECT * from pratica where id = :id",
                     new MapSqlParameterSource().addValue("id", id),
                     new PraticaMapper());
-        } catch (DataAccessException _) {
+        } catch (DataAccessException e) {
         }
         return Optional.ofNullable(p);
     }
@@ -56,6 +56,20 @@ public class PraticaRepository implements IPraticaRepository {
                         .addValue("created_at", p.getCreatedAt()));
 
         sendMessage("created", p);
+
+        return p;
+    }
+
+    @Override
+    public Pratica update(Pratica p) {
+        jdbcTemplate.update(
+                "UPDATE pratica SET nome = :nome, updated_at = :updated_at where id = :id",
+                new MapSqlParameterSource()
+                        .addValue("id", p.getId())
+                        .addValue("nome", p.getNome())
+                        .addValue("updated_at", p.getUpdatedAt()));
+
+        sendMessage("updated", p);
 
         return p;
     }

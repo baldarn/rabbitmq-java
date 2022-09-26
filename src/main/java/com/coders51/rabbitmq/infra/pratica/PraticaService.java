@@ -38,7 +38,7 @@ public class PraticaService {
         }
         old.setNome(p.getNome());
         old.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-        return praticaRepository.save(old);
+        return praticaRepository.update(old);
     }
 
     public void delete(UUID id) {

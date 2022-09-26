@@ -15,6 +15,8 @@ public interface IPraticaRepository {
 
     Pratica save(Pratica p);
 
+    Pratica update(Pratica p);
+
     void deleteById(UUID id);
 
 }

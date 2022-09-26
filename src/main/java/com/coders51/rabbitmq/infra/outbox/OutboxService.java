@@ -44,8 +44,8 @@ public class OutboxService {
                 new Date());
     }
 
+    @Scheduled(fixedDelay = 200)
     @Transactional
-    @Scheduled(cron = "0/1 * * * * ?")
     public void process() throws SQLException, JsonMappingException, JsonProcessingException, ClassNotFoundException {
         Outbox outbox;
         try {
@@ -54,10 +54,11 @@ public class OutboxService {
                     " where published is false " +
                     " order by created_at asc " +
                     " limit 1 " +
-                    " for update skip locked ";
+                    " for update skip locked";
             outbox = jdbcTemplate.queryForObject(sql, new OutboxMapper());
 
             CorrelationData correlationData = new CorrelationData(outbox.getId().toString());
+            System.out.println("processing outbox " + outbox.getId().toString());
 
             ObjectMapper objectMapper = new ObjectMapper();
             Object object = objectMapper.readValue(outbox.getMsg(), Class.forName(outbox.getType()));
@@ -69,22 +70,25 @@ public class OutboxService {
             }, correlationData);
 
             waitConfirmation(correlationData.getId());
-            jdbcTemplate.update("update outbox set published = true where id = '" + correlationData.getId() + "'");
+            jdbcTemplate.update(
+                    "update outbox set published = true where id = ?",
+                    UUID.fromString(correlationData.getId()));
+
         } catch (EmptyResultDataAccessException e) {
-            // niente da fare
-            ;
         }
     }
 
-    // TODO: metodo per muovere i non confermati come da publicare
+    // TODO: metodo per muovere i non confermati come da pubblicare
 
     private void waitConfirmation(String outboxId) {
         long start = System.currentTimeMillis();
         long end = start + 5 * 1000;
         Boolean confirmed;
         do {
-            confirmed = jdbcTemplate.queryForObject("select confirmed from outbox where id = '" + outboxId + "'",
-                    Boolean.class);
+            confirmed = jdbcTemplate.queryForObject(
+                    "select confirmed from outbox_confirmation where id = ?",
+                    Boolean.class,
+                    UUID.fromString(outboxId));
         } while ((confirmed == null || !confirmed) && System.currentTimeMillis() < end);
         if (!confirmed)
             throw new Error("Message not confirmed");

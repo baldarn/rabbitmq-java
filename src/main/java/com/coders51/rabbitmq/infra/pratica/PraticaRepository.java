@@ -88,13 +88,13 @@ public class PraticaRepository implements IPraticaRepository {
     }
 
     private void sendMessage(String routingKey, Pratica pratica) {
-        jdbcTemplate.update("INSERT INTO outbox(id, routing_key, type, msg, created_at) VALUES (:id, :r, :t, :m, :c)",
+        jdbcTemplate.update("INSERT INTO outbox(id, routing_key, type, msg, created_at) VALUES (:id, :routing_key, :type, :message, :created_at)",
                 new MapSqlParameterSource()
                         .addValue("id", UUID.randomUUID())
-                        .addValue("r", routingKey)
-                        .addValue("t", Pratica.class.getName())
-                        .addValue("m", pratica.toString())
-                        .addValue("c", new Date()));
+                        .addValue("routing_key", routingKey)
+                        .addValue("type", Pratica.class.getName())
+                        .addValue("message", pratica.toString())
+                        .addValue("created_at", new Date()));
     }
 
 }

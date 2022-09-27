@@ -12,6 +12,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,6 +44,7 @@ public class PraticaRepository implements IPraticaRepository {
     }
 
     @Override
+    @Transactional
     public Pratica save(Pratica p) {
 
         jdbcTemplate.update(
@@ -61,6 +63,7 @@ public class PraticaRepository implements IPraticaRepository {
     }
 
     @Override
+    @Transactional
     public Pratica update(Pratica p) {
         jdbcTemplate.update(
                 "UPDATE pratica SET nome = :nome, updated_at = :updated_at where id = :id",
@@ -75,6 +78,7 @@ public class PraticaRepository implements IPraticaRepository {
     }
 
     @Override
+    @Transactional
     public void deleteById(UUID id) {
         jdbcTemplate.update("DELETE from pratica where id = :id", new MapSqlParameterSource().addValue("id", id));
         Pratica p = new Pratica();

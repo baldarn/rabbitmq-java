@@ -1,6 +1,5 @@
 package com.coders51.rabbitmq.infra.outbox;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.UUID;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,7 +43,6 @@ public class OutboxService {
                 new Date());
     }
 
-    @Scheduled(fixedDelay = 200)
     @Transactional
     public void process() throws SQLException, JsonMappingException, JsonProcessingException, ClassNotFoundException {
         Outbox outbox;
@@ -73,14 +70,17 @@ public class OutboxService {
             waitConfirmation(correlationData.getId());
             jdbcTemplate.update(
                     "update outbox set published = true where id = ?",
-                    UUID.fromString(correlationData.getId()));
+                    UUID.fromString(outbox.getId()));
 
         } catch (EmptyResultDataAccessException e) {
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 
     // TODO: metodo per muovere i non confermati come da pubblicare
-
     private void waitConfirmation(String outboxId) {
         long start = System.currentTimeMillis();
         long end = start + 5 * 1000;

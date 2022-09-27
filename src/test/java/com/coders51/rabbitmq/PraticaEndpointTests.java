@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.awaitility.Awaitility.await;
 
@@ -31,11 +31,12 @@ class PraticaEndpointTests extends BaseTest {
 
 	@Test
 	void itShouldCreateAPratica() throws Exception {
-		Pratica response = createPratica("the name");
-		assertNotNull(response);
+		Pratica pratica = createPratica("the name");
+		assertNotNull(pratica);
 
 		await().atMost(5, TimeUnit.SECONDS)
-				.untilAsserted(() -> verify(receiver, times(1)).listen(any()));
+				.untilAsserted(() -> verify(receiver, times(1))
+						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(pratica.getId()))));
 
 	}
 
@@ -70,7 +71,8 @@ class PraticaEndpointTests extends BaseTest {
 		assertEquals("new name", updated.getNome());
 
 		await().atMost(5, TimeUnit.SECONDS)
-				.untilAsserted(() -> verify(receiver, times(2)).listen(any()));
+				.untilAsserted(() -> verify(receiver, times(2))
+						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(pratica.getId()))));
 	}
 
 	@Test
@@ -84,7 +86,8 @@ class PraticaEndpointTests extends BaseTest {
 		assertNull(response);
 
 		await().atMost(5, TimeUnit.SECONDS)
-				.untilAsserted(() -> verify(receiver, times(2)).listen(any()));
+				.untilAsserted(() -> verify(receiver, times(2))
+						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(pratica.getId()))));
 	}
 
 	private Pratica createPratica(String nome) {

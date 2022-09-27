@@ -1,5 +1,6 @@
 package com.coders51.rabbitmq.infra.outbox;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.UUID;

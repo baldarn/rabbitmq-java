@@ -84,21 +84,12 @@ public class PraticaRepository implements IPraticaRepository {
     }
 
     private void sendMessage(String routingKey, Pratica pratica) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonMsg = null;
-
-        try {
-            jsonMsg = objectMapper.writeValueAsString(pratica);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
         jdbcTemplate.update("INSERT INTO outbox(id, routing_key, type, msg, created_at) VALUES (:id, :r, :t, :m, :c)",
                 new MapSqlParameterSource()
                         .addValue("id", UUID.randomUUID())
                         .addValue("r", routingKey)
                         .addValue("t", Pratica.class.getName())
-                        .addValue("m", jsonMsg)
+                        .addValue("m", pratica.toString())
                         .addValue("c", new Date()));
     }
 

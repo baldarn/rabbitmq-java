@@ -4,11 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.awaitility.Awaitility.await;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
@@ -29,14 +30,27 @@ class PraticaServiceTests extends BaseTest {
 
 	@Test
 	void itShouldCreateAPratica() {
-		Pratica saved = praticaService.create(new Pratica("1"));
-		praticaService.create(new Pratica("2"));
-		praticaService.create(new Pratica("3"));
+		Pratica saved1 = praticaService.create(new Pratica("1"));
+		Pratica saved2 = praticaService.create(new Pratica("2"));
+		Pratica saved3 = praticaService.create(new Pratica("3"));
 
 		await().atMost(5, TimeUnit.SECONDS)
-				.untilAsserted(() -> verify(receiver, times(3)).listen(any()));
+				.untilAsserted(() -> verify(receiver, times(1))
+						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(saved1.getId()))));
 
-		Pratica get = praticaService.getById(saved.getId());
+		await().atMost(5, TimeUnit.SECONDS)
+				.untilAsserted(() -> verify(receiver, times(1))
+						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(saved2.getId()))));
+
+		await().atMost(5, TimeUnit.SECONDS)
+				.untilAsserted(() -> verify(receiver, times(1))
+						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(saved3.getId()))));
+
+		Pratica get = praticaService.getById(saved1.getId());
+		assertNotNull(get);
+		get = praticaService.getById(saved2.getId());
+		assertNotNull(get);
+		get = praticaService.getById(saved3.getId());
 		assertNotNull(get);
 	}
 
@@ -52,12 +66,14 @@ class PraticaServiceTests extends BaseTest {
 	@Test
 	void itShouldUpdatePratiche() {
 		Pratica saved = praticaService.create(new Pratica("1"));
+		UUID id = saved.getId();
 
 		saved.setNome("updated");
 		saved = praticaService.update(saved);
 
 		await().atMost(5, TimeUnit.SECONDS)
-				.untilAsserted(() -> verify(receiver, times(2)).listen(any()));
+				.untilAsserted(() -> verify(receiver, times(2))
+						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(id))));
 
 		assertEquals("updated", saved.getNome());
 	}
@@ -69,7 +85,8 @@ class PraticaServiceTests extends BaseTest {
 		praticaService.delete(saved.getId());
 
 		await().atMost(5, TimeUnit.SECONDS)
-				.untilAsserted(() -> verify(receiver, times(2)).listen(any()));
+				.untilAsserted(() -> verify(receiver, times(2))
+						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(saved.getId()))));
 
 		Pratica get = praticaService.getById(saved.getId());
 		assertNull(get);

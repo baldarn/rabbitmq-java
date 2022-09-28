@@ -34,21 +34,27 @@ class PraticaServiceTests extends BaseTest {
 	PraticaRepository repo;
 
 	@Test
-	void itShouldCreateAPratica() {
-		praticaService.create(new Pratica("1"));
-		verify(repo, times(1)).save(any());
-	}
-
-	@Test
 	void itShouldRetrievePratiche() {
-		when(repo.findAll()).thenReturn(Arrays.asList(new Pratica(), new Pratica()));
+		when(repo.findAll())
+			.thenReturn(Arrays.asList(new Pratica(), new Pratica()))
+			.thenReturn(Arrays.asList(new Pratica()));
 
 		List<Pratica> list = praticaService.getAll();
 		verify(repo, times(1)).findAll();
 
 		assertEquals(2, list.size());
+
+		list = praticaService.getAll();
+
+		assertEquals(1, list.size());
 	}
 
+	@Test
+	void itShouldCreateAPratica() {
+		praticaService.create(new Pratica("nome"));
+		verify(repo, times(1)).save(argThat(p -> p.getNome().equals("nome")));
+	}
+	
 	@Test
 	void itShouldRetrieveEmptyArrayWithoutPratiche() {
 		when(repo.findAll()).thenReturn(new ArrayList<>());

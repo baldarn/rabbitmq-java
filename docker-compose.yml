@@ -11,6 +11,13 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: postgres
       POSTGRES_PASSWORD: postgres
+  authorization:
+    image: python:3.7.14-alpine3.16
+    ports: 
+      - 8081:8081
+    volumes:
+      - ./webserver:/app
+    command: python -m http.server 8081 --directory app
   rabbitmq:
     image: rabbitmq:3.9-management
     hostname: rabbitmq

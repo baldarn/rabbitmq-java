@@ -1,13 +1,13 @@
 package com.coders51.rabbitmq.e2e;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
-import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
-import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -16,8 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.web.client.RestTemplate;
 
 import com.coders51.rabbitmq.BaseTest;
 import com.coders51.rabbitmq.consumer.Receiver;
@@ -27,11 +29,15 @@ import com.coders51.rabbitmq.infra.pratica.Pratica;
 class PraticaEndpointTests extends BaseTest {
 
 	private static String url = "http://localhost:8080/pratiche";
+
 	@Autowired
 	private TestRestTemplate restTemplate;
 
 	@SpyBean
 	private Receiver receiver;
+
+	@MockBean
+	private RestTemplate mockRestTemplate;
 
 	@Test
 	void itShouldCreateAPratica() throws Exception {
@@ -83,6 +89,9 @@ class PraticaEndpointTests extends BaseTest {
 	void itShouldDeletePratiche() {
 		Pratica pratica = createPratica("the name");
 
+		when(mockRestTemplate.getForObject("http://localhost:8081/auth.json", String.class))
+			.thenReturn("true");
+		
 		this.restTemplate.delete(url + "/" + pratica.getId().toString());
 
 		Pratica response = this.restTemplate.getForObject(url + "/" + pratica.getId().toString(), Pratica.class);
@@ -92,6 +101,20 @@ class PraticaEndpointTests extends BaseTest {
 		await().atMost(3, TimeUnit.SECONDS)
 				.untilAsserted(() -> verify(receiver, times(2))
 						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(pratica.getId()))));
+	}
+
+	@Test
+	void itShouldntDeletePratiche() {
+		Pratica pratica = createPratica("the name");
+
+		when(mockRestTemplate.getForObject("http://localhost:8081/auth.json", String.class))
+			.thenReturn("false");
+		
+		this.restTemplate.delete(url + "/" + pratica.getId().toString());
+
+		Pratica response = this.restTemplate.getForObject(url + "/" + pratica.getId().toString(), Pratica.class);
+
+		assertNotNull(response);
 	}
 
 	private Pratica createPratica(String nome) {

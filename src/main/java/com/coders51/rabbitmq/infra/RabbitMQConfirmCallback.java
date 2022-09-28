@@ -22,9 +22,9 @@ public class RabbitMQConfirmCallback implements ConfirmCallback {
     @Override
     public void confirm(CorrelationData correlationData, boolean ack, String cause) {
         log.info("correlationId: " + correlationData.getId() + " ack: " + ack);
-        jdbcTemplate.update(
-            "insert into outbox_confirmation(id, confirmed, confirmation_cause, created_at) values (?,?,?,?)",
-            UUID.fromString(correlationData.getId()), ack, cause, new Date());
+            jdbcTemplate.update(
+                    "insert into outbox_confirmation(id, confirmed, confirmation_cause, created_at) values (?,?,?,?)",
+                    UUID.fromString(correlationData.getId()), ack, cause, new Date());
     }
 
 }

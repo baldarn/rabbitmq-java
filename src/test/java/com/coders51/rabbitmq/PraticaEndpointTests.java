@@ -34,6 +34,8 @@ class PraticaEndpointTests extends BaseTest {
 		Pratica pratica = createPratica("the name");
 		assertNotNull(pratica);
 
+		Thread.sleep(5000);
+
 		await().atMost(5, TimeUnit.SECONDS)
 				.untilAsserted(() -> verify(receiver, times(1))
 						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(pratica.getId()))));

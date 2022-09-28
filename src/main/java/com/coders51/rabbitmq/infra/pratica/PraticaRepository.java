@@ -14,9 +14,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @Repository
 public class PraticaRepository implements IPraticaRepository {
 
@@ -88,6 +85,7 @@ public class PraticaRepository implements IPraticaRepository {
     }
 
     private void sendMessage(String routingKey, Pratica pratica) {
+        System.out.println(pratica.toString());
         jdbcTemplate.update("INSERT INTO outbox(id, routing_key, type, msg, created_at) VALUES (:id, :routing_key, :type, :message, :created_at)",
                 new MapSqlParameterSource()
                         .addValue("id", UUID.randomUUID())

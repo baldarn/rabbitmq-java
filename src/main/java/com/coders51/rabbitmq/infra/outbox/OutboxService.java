@@ -3,6 +3,7 @@ package com.coders51.rabbitmq.infra.outbox;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -76,7 +77,7 @@ public class OutboxService {
                     UUID.fromString(outbox.getId()));
             log.info("publish: " + outbox.getId().toString());
         } catch (EmptyResultDataAccessException e) {
-            log.info("nothing to do");
+            log.finer("nothing to do");
         } catch (Exception e) {
             log.severe(e.toString());
             e.printStackTrace();

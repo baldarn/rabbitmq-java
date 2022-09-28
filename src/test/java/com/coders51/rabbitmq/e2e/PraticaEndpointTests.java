@@ -1,4 +1,4 @@
-package com.coders51.rabbitmq;
+package com.coders51.rabbitmq.e2e;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -14,12 +14,16 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 
+import com.coders51.rabbitmq.BaseTest;
 import com.coders51.rabbitmq.consumer.Receiver;
 import com.coders51.rabbitmq.infra.pratica.Pratica;
 
+@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 class PraticaEndpointTests extends BaseTest {
 
 	private static String url = "http://localhost:8080/pratiche";
@@ -34,9 +38,7 @@ class PraticaEndpointTests extends BaseTest {
 		Pratica pratica = createPratica("the name");
 		assertNotNull(pratica);
 
-		Thread.sleep(5000);
-
-		await().atMost(5, TimeUnit.SECONDS)
+		await().atMost(3, TimeUnit.SECONDS)
 				.untilAsserted(() -> verify(receiver, times(1))
 						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(pratica.getId()))));
 
@@ -67,12 +69,12 @@ class PraticaEndpointTests extends BaseTest {
 		Pratica pratica = createPratica("the name");
 		pratica.setNome("new name");
 
-		Pratica updated = this.restTemplate.postForObject(url, pratica, Pratica.class);
+		Pratica updated = this.restTemplate.postForObject(url + "/" + pratica.getId().toString(), pratica, Pratica.class);
 
 		assertNotNull(updated);
 		assertEquals("new name", updated.getNome());
 
-		await().atMost(5, TimeUnit.SECONDS)
+		await().atMost(3, TimeUnit.SECONDS)
 				.untilAsserted(() -> verify(receiver, times(2))
 						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(pratica.getId()))));
 	}
@@ -87,7 +89,7 @@ class PraticaEndpointTests extends BaseTest {
 
 		assertNull(response);
 
-		await().atMost(5, TimeUnit.SECONDS)
+		await().atMost(3, TimeUnit.SECONDS)
 				.untilAsserted(() -> verify(receiver, times(2))
 						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(pratica.getId()))));
 	}

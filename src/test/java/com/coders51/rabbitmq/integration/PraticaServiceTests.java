@@ -1,4 +1,4 @@
-package com.coders51.rabbitmq;
+package com.coders51.rabbitmq.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -14,12 +14,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 
+import com.coders51.rabbitmq.BaseTest;
 import com.coders51.rabbitmq.consumer.Receiver;
 import com.coders51.rabbitmq.infra.pratica.Pratica;
 import com.coders51.rabbitmq.infra.pratica.PraticaService;
 
+@SpringBootTest
 class PraticaServiceTests extends BaseTest {
 
 	@Autowired
@@ -34,18 +37,17 @@ class PraticaServiceTests extends BaseTest {
 		Pratica saved2 = praticaService.create(new Pratica("2"));
 		Pratica saved3 = praticaService.create(new Pratica("3"));
 
-		await().atMost(5, TimeUnit.SECONDS)
+		await().atMost(3, TimeUnit.SECONDS)
 				.untilAsserted(() -> verify(receiver, times(1))
 						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(saved1.getId()))));
 
-		await().atMost(5, TimeUnit.SECONDS)
+		await().atMost(3, TimeUnit.SECONDS)
 				.untilAsserted(() -> verify(receiver, times(1))
 						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(saved2.getId()))));
 
-		await().atMost(5, TimeUnit.SECONDS)
+		await().atMost(3, TimeUnit.SECONDS)
 				.untilAsserted(() -> verify(receiver, times(1))
 						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(saved3.getId()))));
-
 		Pratica get = praticaService.getById(saved1.getId());
 		assertNotNull(get);
 		get = praticaService.getById(saved2.getId());
@@ -71,7 +73,7 @@ class PraticaServiceTests extends BaseTest {
 		saved.setNome("updated");
 		saved = praticaService.update(saved);
 
-		await().atMost(5, TimeUnit.SECONDS)
+		await().atMost(3, TimeUnit.SECONDS)
 				.untilAsserted(() -> verify(receiver, times(2))
 						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(id))));
 
@@ -84,7 +86,7 @@ class PraticaServiceTests extends BaseTest {
 
 		praticaService.delete(saved.getId());
 
-		await().atMost(5, TimeUnit.SECONDS)
+		await().atMost(3, TimeUnit.SECONDS)
 				.untilAsserted(() -> verify(receiver, times(2))
 						.listen(argThat(m -> Pratica.deserialize(m.getBody()).getId().equals(saved.getId()))));
 

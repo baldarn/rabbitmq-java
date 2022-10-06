@@ -20,11 +20,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
-
-
 @Configuration
 public class RabbitMQConfiguration {
-   
+
     @Value("${spring.rabbitmq.host}")
     private String host;
 
@@ -39,7 +37,7 @@ public class RabbitMQConfiguration {
 
     @Value("${spring.rabbitmq.virtual-host}")
     private String virtualHost;
-    
+
     @Value("${spring.rabbitmq.publisher-confirms}")
     private boolean publisherConfirm;
 
@@ -82,7 +80,7 @@ public class RabbitMQConfiguration {
         connectionFactory.setPassword(password);
         connectionFactory.setVirtualHost(virtualHost);
         connectionFactory.setPublisherConfirmType(ConfirmType.CORRELATED);
-        
+
         return connectionFactory;
     }
 
@@ -105,7 +103,7 @@ public class RabbitMQConfiguration {
         factory.setPrefetchCount(prefetchCount);
         return factory;
     }
-    
+
     @Bean
     public Jackson2JsonMessageConverter producerJackson2MessageConverter() {
         return new Jackson2JsonMessageConverter();

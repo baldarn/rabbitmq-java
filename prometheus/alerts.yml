@@ -1,0 +1,17 @@
+groups:
+  - name: test
+    rules:
+    # - alert: TestAlert
+    #   expr: rabbitmq_channel_consumers{instance="rabbitmq:15692", job="rabbitmq"} == 0
+    #   for: 30s
+    #   labels:
+    #     severity: page
+    #   annotations:
+    #     summary: TEST
+    - alert: TestAlertQueueNotEmpty
+      expr: rabbitmq_detailed_queue_messages{instance="rabbitmq:15692", queue="qwe"} > 0
+      for: 30s
+      labels:
+        severity: page
+      annotations:
+        summary: TEST

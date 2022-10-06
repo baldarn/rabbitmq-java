@@ -8,14 +8,13 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Receiver {
-    
+
     @Autowired
     RabbitTemplate rabbitTemplate;
 
     @RabbitListener(queues = "${spring.service-name}")
     public void listen(Message message) {
-        System.out.println("Message read: " + message.toString());
+        System.out.println("Message read: " + message.getMessageProperties().getCorrelationId());
     }
-
 
 }

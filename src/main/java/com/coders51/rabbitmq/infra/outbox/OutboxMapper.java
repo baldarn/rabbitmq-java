@@ -13,6 +13,7 @@ public class OutboxMapper implements RowMapper<Outbox> {
         outbox.setId(rs.getString("ID"));
         outbox.setType(rs.getString("TYPE"));
         outbox.setMsg(rs.getString("MSG"));
+        outbox.setRoutingKey(rs.getString("routing_key"));
 
         return outbox;
     }

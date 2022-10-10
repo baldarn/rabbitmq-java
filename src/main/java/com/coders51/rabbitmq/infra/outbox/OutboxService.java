@@ -3,7 +3,6 @@ package com.coders51.rabbitmq.infra.outbox;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.UUID;
-import java.util.logging.Level;
 
 import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -101,7 +100,7 @@ public class OutboxService {
                 log.warning("non ancora confermato");
             }
         } while ((confirmed == null || !confirmed) && System.currentTimeMillis() < end);
-        if (!confirmed)
+        if (confirmed != null && !confirmed)
             throw new Error("Message not confirmed");
     }
 

@@ -8,12 +8,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+
 @Service
 @Transactional
 public class PraticaService {
 
     @Autowired
     IPraticaRepository praticaRepository;
+
+    @Autowired
+	MeterRegistry meterRegistry;
 
     public List<Pratica> getAll() {
         return praticaRepository.findAll();
@@ -28,6 +34,10 @@ public class PraticaService {
         p.setUpdatedAt(now);
         p.setCreatedAt(now);
         p.setId(UUID.randomUUID());
+
+        Counter c = meterRegistry.counter("pratica.created");
+        c.increment(1);
+
         return praticaRepository.save(p);
     }
 

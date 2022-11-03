@@ -38,6 +38,7 @@ public class PraticaEndpoint {
 
 	@GetMapping("/pratiche")
 	public List<Pratica> getAll() throws InterruptedException {
+		Thread.sleep(2000);
 		return praticaService.getAll();
 	}
 

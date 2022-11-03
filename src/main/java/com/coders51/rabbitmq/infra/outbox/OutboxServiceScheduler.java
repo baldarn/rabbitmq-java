@@ -15,7 +15,7 @@ public class OutboxServiceScheduler {
     @Autowired
     OutboxService outboxService;
 
-    @Scheduled(fixedDelay = 5000)
+    @Scheduled(fixedDelay = 2000)
     public void process() throws JsonMappingException, JsonProcessingException, ClassNotFoundException, SQLException {
         outboxService.process();
     }
